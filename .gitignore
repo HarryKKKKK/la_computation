@@ -1,0 +1,37 @@
+# ---------- OS ----------
+.DS_Store
+Thumbs.db
+
+# ---------- Editors ----------
+.vscode/
+.idea/
+*.swp
+
+# ---------- Python ----------
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# ---------- C / C++ ----------
+*.o
+*.out
+*.exe
+*.a
+*.so
+build/
+cmake-build-*/
+
+# ---------- Logs ----------
+*.log
+
+# ---------- Data / Results ----------
+data/
+outputs/
+results/
+checkpoints/
+
+# ---------- Jupyter ----------
+.ipynb_checkpoints/
