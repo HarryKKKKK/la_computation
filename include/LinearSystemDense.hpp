@@ -19,7 +19,7 @@ public:
     // r = b - A * x
     VectorDouble residual() const;
     // solve x = A / b
-    VectorDouble solve() const;
+    // VectorDouble solve() const;
 
     bool isSymmetric() const;
     bool isDiagonallyDominant() const;

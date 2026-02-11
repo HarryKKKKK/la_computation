@@ -30,6 +30,5 @@ public:
 
 private:
     std::size_t N_;
-    // A[i, j]: data_[i * N_ + j]
     std::unique_ptr<double[]> data_;
 };
