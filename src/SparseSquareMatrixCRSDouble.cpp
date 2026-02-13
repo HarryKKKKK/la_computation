@@ -13,9 +13,9 @@ std::size_t SparseSquareMatrixCRSDouble::nnz()  const noexcept { return val_.siz
 void SparseSquareMatrixCRSDouble::addEntry(std::size_t i, std::size_t j, double val)
 {
     if (finalized_)
-        throw std::runtime_error("Cannot addEntry after finalize()");
+        throw std::runtime_error("Error: Cannot addEntry after finalize()");
     if (i >= N_ || j >= N_)
-        throw std::runtime_error("addEntry index out of range");
+        throw std::runtime_error("Error: addEntry index out of range");
 
     entries_.push_back({i, j, val});
 }
@@ -25,7 +25,7 @@ void SparseSquareMatrixCRSDouble::finalize()
     if (finalized_)
         return;
 
-    // Reset diag and CRS arrays
+    // Reset CRS storage
     for (std::size_t i = 0; i < N_; ++i) {
         diag_[i] = 0.0;
     }
@@ -43,8 +43,6 @@ void SparseSquareMatrixCRSDouble::finalize()
               });
 
     // First pass: count unique OFF-diagonal entries per row,
-    // while accumulating diagonal into diag_.
-    // Also handle duplicates by summing them.
     std::size_t k = 0;
     while (k < entries_.size()) {
         std::size_t i = entries_[k].i;
@@ -74,7 +72,7 @@ void SparseSquareMatrixCRSDouble::finalize()
     colInd_.assign(nnz_off, 0);
     val_.assign(nnz_off, 0.0);
 
-    // Second pass: fill colInd/val for OFF-diagonal, using rowPtr as offsets
+    // Second pass: fill colInd/val for OFF-diagonal
     std::vector<std::size_t> cursor = rowPtr_;
 
     k = 0;
@@ -100,7 +98,6 @@ void SparseSquareMatrixCRSDouble::finalize()
 
     finalized_ = true;
 
-    // Optional: free builder memory
     entries_.clear();
     entries_.shrink_to_fit();
 }
@@ -108,14 +105,14 @@ void SparseSquareMatrixCRSDouble::finalize()
 VectorDouble SparseSquareMatrixCRSDouble::operator*(const VectorDouble& x) const
 {
     if (!finalized_)
-        throw std::runtime_error("SparseSquareMatrixCRSDouble not finalized()");
+        throw std::runtime_error("Error: SparseSquareMatrixCRSDouble not finalized()");
     if (x.size() != N_)
-        throw std::runtime_error("Dimension mismatch in sparse A*x");
+        throw std::runtime_error("Error: Dimension mismatch in sparse A*x");
 
     VectorDouble y(N_);
 
     for (std::size_t i = 0; i < N_; ++i) {
-        double sum = diag_[i] * x[i]; // diagonal contribution
+        double sum = diag_[i] * x[i];
 
         for (std::size_t p = rowPtr_[i]; p < rowPtr_[i + 1]; ++p) {
             const std::size_t j = colInd_[p];

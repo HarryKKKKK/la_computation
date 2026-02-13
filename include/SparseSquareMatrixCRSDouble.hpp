@@ -35,11 +35,9 @@ private:
     std::vector<Triplet> entries_;
     bool finalized_;
 
-    // CRS storage for OFF-diagonal entries only
-    std::vector<std::size_t> rowPtr_;  // size N_+1
-    std::vector<std::size_t> colInd_;  // size nnz
-    std::vector<double> val_;     // size nnz
-
-    // diagonal stored separately
+    // CRS storage
+    std::vector<std::size_t> rowPtr_;
+    std::vector<std::size_t> colInd_;
+    std::vector<double> val_;
     VectorDouble diag_;
 };
