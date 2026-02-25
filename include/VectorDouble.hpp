@@ -29,6 +29,8 @@ public:
 
     // norms
     double norm_n(int n) const;
+    double norm_1() const;
+    double norm_2() const;
     double normInf() const;
 
 private:

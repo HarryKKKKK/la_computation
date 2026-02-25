@@ -134,6 +134,14 @@ double VectorDouble::norm_n(int n) const
     return std::pow(sum, 1.0 / n);
 }
 
+double VectorDouble::norm_1() const
+{
+    return norm_n(1);
+}
+double VectorDouble::norm_2() const
+{
+    return norm_n(2);
+}
 double VectorDouble::normInf() const
 {
     double maxVal = 0.0;
