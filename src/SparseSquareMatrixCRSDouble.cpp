@@ -124,3 +124,45 @@ VectorDouble SparseSquareMatrixCRSDouble::operator*(const VectorDouble& x) const
 
     return y;
 }
+
+bool SparseSquareMatrixCRSDouble::operator==(const SparseSquareMatrixCRSDouble& other) const
+{
+    if (N_ != other.N_) return false;
+    if (!finalized_ || !other.finalized_) return false;
+
+    const double tol = 1e-12;
+
+    // 1) diagonal
+    for (std::size_t i = 0; i < N_; ++i) {
+        if (std::abs(diag_[i] - other.diag_[i]) > tol)
+            return false;
+    }
+
+    // 2) rowPtr exact (should match if both are canonical CSR)
+    if (rowPtr_.size() != other.rowPtr_.size()) return false;
+    for (std::size_t i = 0; i < rowPtr_.size(); ++i) {
+        if (rowPtr_[i] != other.rowPtr_[i])
+            return false;
+    }
+
+    // 3) colInd exact
+    if (colInd_.size() != other.colInd_.size()) return false;
+    for (std::size_t k = 0; k < colInd_.size(); ++k) {
+        if (colInd_[k] != other.colInd_[k])
+            return false;
+    }
+
+    // 4) values with tolerance
+    if (val_.size() != other.val_.size()) return false;
+    for (std::size_t k = 0; k < val_.size(); ++k) {
+        if (std::abs(val_[k] - other.val_[k]) > tol)
+            return false;
+    }
+
+    return true;
+}
+
+bool SparseSquareMatrixCRSDouble::operator!=(const SparseSquareMatrixCRSDouble& other) const
+{
+    return !(*this == other);
+}

@@ -24,6 +24,8 @@ public:
     VectorDouble operator+(const VectorDouble& other) const;
     VectorDouble operator-(const VectorDouble& other) const;
     VectorDouble operator*(double scalar) const;
+    bool operator==(const VectorDouble& other) const;
+    bool operator!=(const VectorDouble& other) const;
 
     // norms
     double norm_n(int n) const;

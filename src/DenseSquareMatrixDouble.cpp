@@ -152,3 +152,24 @@ DenseSquareMatrixDouble::operator*(const VectorDouble& x) const
 
     return result;
 }
+
+bool DenseSquareMatrixDouble::operator==(const DenseSquareMatrixDouble& other) const
+{
+    if (N_ != other.N_)
+        return false;
+
+    const double tol = 1e-12;
+
+    for (std::size_t i = 0; i < N_ * N_; ++i)
+    {
+        if (std::abs(data_[i] - other.data_[i]) > tol)
+            return false;
+    }
+
+    return true;
+}
+
+bool DenseSquareMatrixDouble::operator!=(const DenseSquareMatrixDouble& other) const
+{
+    return !(*this == other);
+}

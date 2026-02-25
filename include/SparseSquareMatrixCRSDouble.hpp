@@ -21,6 +21,8 @@ public:
     const std::vector<std::size_t>& colInd() const { return colInd_; }
     const std::vector<double>& values() const { return val_; }
     const VectorDouble& diagonal() const { return diag_; }
+    bool operator==(const SparseSquareMatrixCRSDouble& other) const;
+    bool operator!=(const SparseSquareMatrixCRSDouble& other) const;
 
 private:
     struct Triplet {

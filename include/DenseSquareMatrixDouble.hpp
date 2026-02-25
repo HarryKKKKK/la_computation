@@ -27,6 +27,8 @@ public:
     DenseSquareMatrixDouble operator*(const DenseSquareMatrixDouble& other) const;
     DenseSquareMatrixDouble operator*(double scalar) const;
     VectorDouble operator*(const VectorDouble& x) const;
+    bool operator==(const DenseSquareMatrixDouble& other) const;
+    bool operator!=(const DenseSquareMatrixDouble& other) const;
 
 private:
     std::size_t N_;

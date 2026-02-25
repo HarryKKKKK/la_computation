@@ -100,6 +100,27 @@ VectorDouble VectorDouble::operator*(double scalar) const
     return result;
 }
 
+bool VectorDouble::operator==(const VectorDouble& other) const
+{
+    if (vol_ != other.vol_)
+        return false;
+
+    const double tol = 1e-12;
+
+    for (std::size_t i = 0; i < vol_; ++i)
+    {
+        if (std::abs(data_[i] - other.data_[i]) > tol)
+            return false;
+    }
+
+    return true;
+}
+
+bool VectorDouble::operator!=(const VectorDouble& other) const
+{
+    return !(*this == other);
+}
+
 double VectorDouble::norm_n(int n) const
 {
     if (n <= 0)
