@@ -166,3 +166,80 @@ bool SparseSquareMatrixCRSDouble::operator!=(const SparseSquareMatrixCRSDouble& 
 {
     return !(*this == other);
 }
+
+SparseSquareMatrixCRSDouble
+SparseSquareMatrixCRSDouble::operator+(
+    const SparseSquareMatrixCRSDouble& other) const
+{
+    if (N_ != other.N_)
+        throw std::runtime_error("Sparse + dimension mismatch");
+
+    if (!finalized_ || !other.finalized_)
+        throw std::runtime_error("Matrices must be finalized");
+
+    SparseSquareMatrixCRSDouble C(N_);
+
+    for (std::size_t i = 0; i < N_; ++i)
+    {
+        // diagonal
+        C.addEntry(i, i, diag_[i] + other.diag_[i]);
+
+        // this matrix
+        for (std::size_t p = rowPtr_[i]; p < rowPtr_[i+1]; ++p)
+            C.addEntry(i, colInd_[p], val_[p]);
+
+        // other matrix
+        for (std::size_t p = other.rowPtr_[i]; p < other.rowPtr_[i+1]; ++p)
+            C.addEntry(i, other.colInd_[p], other.val_[p]);
+    }
+
+    C.finalize();
+    return C;
+}
+
+SparseSquareMatrixCRSDouble
+SparseSquareMatrixCRSDouble::operator-(
+    const SparseSquareMatrixCRSDouble& other) const
+{
+    if (N_ != other.N_)
+        throw std::runtime_error("Sparse - dimension mismatch");
+
+    if (!finalized_ || !other.finalized_)
+        throw std::runtime_error("Matrices must be finalized");
+
+    SparseSquareMatrixCRSDouble C(N_);
+
+    for (std::size_t i = 0; i < N_; ++i)
+    {
+        C.addEntry(i, i, diag_[i] - other.diag_[i]);
+
+        for (std::size_t p = rowPtr_[i]; p < rowPtr_[i+1]; ++p)
+            C.addEntry(i, colInd_[p], val_[p]);
+
+        for (std::size_t p = other.rowPtr_[i]; p < other.rowPtr_[i+1]; ++p)
+            C.addEntry(i, other.colInd_[p], -other.val_[p]);
+    }
+
+    C.finalize();
+    return C;
+}
+
+SparseSquareMatrixCRSDouble
+SparseSquareMatrixCRSDouble::operator*(double scalar) const
+{
+    if (!finalized_)
+        throw std::runtime_error("Matrix must be finalized");
+
+    SparseSquareMatrixCRSDouble C(N_);
+
+    for (std::size_t i = 0; i < N_; ++i)
+    {
+        C.addEntry(i, i, diag_[i] * scalar);
+
+        for (std::size_t p = rowPtr_[i]; p < rowPtr_[i+1]; ++p)
+            C.addEntry(i, colInd_[p], val_[p] * scalar);
+    }
+
+    C.finalize();
+    return C;
+}

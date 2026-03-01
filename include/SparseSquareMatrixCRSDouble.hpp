@@ -14,13 +14,18 @@ public:
 
     void addEntry(std::size_t i, std::size_t j, double val);
     void finalize();
-
-    VectorDouble operator*(const VectorDouble& x) const;
+    bool isFinalized() const noexcept { return finalized_; }
 
     const std::vector<std::size_t>& rowPtr() const { return rowPtr_; }
     const std::vector<std::size_t>& colInd() const { return colInd_; }
     const std::vector<double>& values() const { return val_; }
     const VectorDouble& diagonal() const { return diag_; }
+
+    SparseSquareMatrixCRSDouble operator+(const SparseSquareMatrixCRSDouble& other) const;
+    SparseSquareMatrixCRSDouble operator-(const SparseSquareMatrixCRSDouble& other) const;
+    SparseSquareMatrixCRSDouble operator*(double scalar) const;
+    VectorDouble operator*(const VectorDouble& x) const;
+
     bool operator==(const SparseSquareMatrixCRSDouble& other) const;
     bool operator!=(const SparseSquareMatrixCRSDouble& other) const;
 

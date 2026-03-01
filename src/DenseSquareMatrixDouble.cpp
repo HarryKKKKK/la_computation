@@ -96,30 +96,6 @@ DenseSquareMatrixDouble::operator-(const DenseSquareMatrixDouble& other) const
 }
 
 DenseSquareMatrixDouble
-DenseSquareMatrixDouble::operator*(const DenseSquareMatrixDouble& other) const
-{
-    if (N_ != other.N_)
-        throw std::runtime_error("Error: Matrix dimention mismatch (*)");
-
-    DenseSquareMatrixDouble result(N_);
-    for (std::size_t i = 0; i < N_; ++i)
-    {
-        for (std::size_t k = 0; k < N_; ++k)
-        {
-            double aik = (*this)(i, k);
-
-            for (std::size_t j = 0; j < N_; ++j)
-            {
-                result(i, j) += aik * other(k, j);
-            }
-        }
-    }
-
-    return result;
-}
-
-
-DenseSquareMatrixDouble
 DenseSquareMatrixDouble::operator*(double scalar) const
 {
     DenseSquareMatrixDouble result(N_);

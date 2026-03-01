@@ -18,6 +18,11 @@ public:
     const VectorDouble& x() const;
     const VectorDouble& b() const;
 
+    LinearSystemSparse operator+(const LinearSystemSparse& other) const;
+    LinearSystemSparse operator-(const LinearSystemSparse& other) const;
+    LinearSystemSparse operator*(double scalar) const;
+    bool isDiagonallyDominant() const;
+    bool isSymmetric() const;
     void multiply();
     VectorDouble residual() const;
 

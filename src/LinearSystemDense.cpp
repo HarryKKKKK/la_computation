@@ -67,3 +67,51 @@ bool LinearSystemDense::isDiagonallyDominant() const
     }
     return true;
 }
+
+// ===============================
+// Arith Op
+// ===============================
+LinearSystemDense
+LinearSystemDense::operator+(const LinearSystemDense& other) const
+{
+    if (A_.size() != other.A_.size())
+        throw std::runtime_error("Dimension mismatch in LinearSystemDense +");
+
+    DenseSquareMatrixDouble Anew = A_ + other.A_;
+    VectorDouble bnew = b_ + other.b_;
+
+    VectorDouble xnew = x_;
+
+    return LinearSystemDense(std::move(Anew),
+                             std::move(xnew),
+                             std::move(bnew));
+}
+
+LinearSystemDense
+LinearSystemDense::operator-(const LinearSystemDense& other) const
+{
+    if (A_.size() != other.A_.size())
+        throw std::runtime_error("Dimension mismatch in LinearSystemDense -");
+
+    DenseSquareMatrixDouble Anew = A_ - other.A_;
+    VectorDouble bnew = b_ - other.b_;
+
+    VectorDouble xnew = x_;
+
+    return LinearSystemDense(std::move(Anew),
+                             std::move(xnew),
+                             std::move(bnew));
+}
+
+LinearSystemDense
+LinearSystemDense::operator*(double scalar) const
+{
+    DenseSquareMatrixDouble Anew = A_ * scalar;
+    VectorDouble bnew = b_ * scalar;
+
+    VectorDouble xnew = x_;
+
+    return LinearSystemDense(std::move(Anew),
+                             std::move(xnew),
+                             std::move(bnew));
+}

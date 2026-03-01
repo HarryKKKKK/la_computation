@@ -19,22 +19,22 @@ SRC = \
 # Targets
 # ==============================
 
-.PHONY: all dense sparse io clean
+.PHONY: all dense sparse io performance clean
 
-all: dense sparse io
+all: dense sparse io performance
 
-# -------- Dense test ----------
 dense:
 	$(CXX) $(CXXFLAGS) $(SRC) tests/denseMatTest.cpp -o denseTest
 
-# -------- Sparse test ---------
 sparse:
 	$(CXX) $(CXXFLAGS) $(SRC) tests/sparseMatTest.cpp -o sparseTest
 
-# -------- IO test -------------
 io:
 	$(CXX) $(CXXFLAGS) $(SRC) tests/ioTest.cpp -o ioTest
 
+performance:
+	$(CXX) $(CXXFLAGS) $(SRC) computational_performance.cpp -o performance
+
 # -------- Clean ---------------
 clean:
-	rm -f denseTest sparseTest ioTest
+	rm -f denseTest sparseTest ioTest performance

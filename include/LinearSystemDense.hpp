@@ -14,12 +14,14 @@ public:
     const VectorDouble& x() const;
     const VectorDouble& b() const;
 
-    // compute b = A * x
+    LinearSystemDense operator+(const LinearSystemDense& other) const;
+    LinearSystemDense operator-(const LinearSystemDense& other) const;
+    LinearSystemDense operator*(double scalar) const;
+
+    // b = A * x
     void multiply();
     // r = b - A * x
     VectorDouble residual() const;
-    // solve x = A / b
-    // VectorDouble solve() const;
 
     bool isSymmetric() const;
     bool isDiagonallyDominant() const;

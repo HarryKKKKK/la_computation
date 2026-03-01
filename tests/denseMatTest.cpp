@@ -133,33 +133,6 @@ static void test_dense_matrix_add_sub_scalar()
     std::cout << "  OK\n";
 }
 
-static void test_dense_matrix_matrix_mult()
-{
-    std::cout << "Running test_dense_matrix_matrix_mult...\n";
-
-    DenseSquareMatrixDouble A(2), B(2);
-
-    // A = [1 2; 3 4]
-    A(0,0)=1; A(0,1)=2;
-    A(1,0)=3; A(1,1)=4;
-
-    // B = [5 6; 7 8]
-    B(0,0)=5; B(0,1)=6;
-    B(1,0)=7; B(1,1)=8;
-
-    DenseSquareMatrixDouble C = A * B;
-
-    // Expected:
-    // [1*5+2*7, 1*6+2*8] = [19, 22]
-    // [3*5+4*7, 3*6+4*8] = [43, 50]
-    expect_near(C(0,0), 19, 1e-12, "A*B(0,0)");
-    expect_near(C(0,1), 22, 1e-12, "A*B(0,1)");
-    expect_near(C(1,0), 43, 1e-12, "A*B(1,0)");
-    expect_near(C(1,1), 50, 1e-12, "A*B(1,1)");
-
-    std::cout << "  OK\n";
-}
-
 static void test_linear_system_multiply_residual()
 {
     std::cout << "Running test_linear_system_multiply_residual...\n";
@@ -224,7 +197,6 @@ int main()
         test_dense_identity_mv();
         test_dense_diagonal_mv();
         test_dense_matrix_add_sub_scalar();
-        test_dense_matrix_matrix_mult();
         test_linear_system_multiply_residual();
         test_symmetry_and_diag_dominance();
 
