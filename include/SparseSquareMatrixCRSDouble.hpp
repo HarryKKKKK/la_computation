@@ -29,6 +29,9 @@ public:
     bool operator==(const SparseSquareMatrixCRSDouble& other) const;
     bool operator!=(const SparseSquareMatrixCRSDouble& other) const;
 
+    bool isDiagonallyDominant() const;
+    bool isSymmetric() const;
+
 private:
     struct Triplet {
         std::size_t i;

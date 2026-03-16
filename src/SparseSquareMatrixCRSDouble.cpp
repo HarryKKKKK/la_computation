@@ -243,3 +243,96 @@ SparseSquareMatrixCRSDouble::operator*(double scalar) const
     C.finalize();
     return C;
 }
+bool SparseSquareMatrixCRSDouble::isDiagonallyDominant() const
+{
+    if (!finalized_)
+        throw std::runtime_error("Error: Matrix must be finalized before checks");
+
+    const double tol = 1e-12;
+
+    for (std::size_t i = 0; i < N_; ++i)
+    {
+        const double diagAbs = std::abs(diag_[i]);
+        double offSum = 0.0;
+
+        for (std::size_t p = rowPtr_[i]; p < rowPtr_[i + 1]; ++p)
+            offSum += std::abs(val_[p]);
+
+        if (diagAbs + tol < offSum)
+            return false;
+    }
+
+    return true;
+}
+
+bool SparseSquareMatrixCRSDouble::isSymmetric() const
+{
+    if (!finalized_)
+        throw std::runtime_error("Error: Matrix must be finalized before checks");
+
+    const double tol = 1e-12;
+
+    const std::size_t nnz_off = val_.size();
+
+    // Build transpose CRS of off-diagonal part WITHOUT sorting:
+    // Because we traverse i from 0..N-1 and inside each row colInd_ is increasing,
+    // the inserted "column indices" (which are i) into each transpose row will be increasing.
+    std::vector<std::size_t> tRowPtr(N_ + 1, 0);
+
+    // 1) count entries per transpose row (row = original column j)
+    for (std::size_t p = 0; p < nnz_off; ++p) {
+        const std::size_t j = colInd_[p];
+        tRowPtr[j + 1] += 1;
+    }
+
+    // 2) prefix sum
+    for (std::size_t r = 0; r < N_; ++r)
+        tRowPtr[r + 1] += tRowPtr[r];
+
+    std::vector<std::size_t> tColInd(nnz_off, 0);
+    std::vector<double>      tVal(nnz_off, 0.0);
+
+    // 3) stable fill using row-major traversal of A
+    std::vector<std::size_t> cursor = tRowPtr;
+    for (std::size_t i = 0; i < N_; ++i) {
+        for (std::size_t p = rowPtr_[i]; p < rowPtr_[i + 1]; ++p) {
+            const std::size_t j = colInd_[p];
+            const double aij = val_[p];
+
+            const std::size_t pos = cursor[j]++;
+            tColInd[pos] = i;   // transpose has column = original row i
+            tVal[pos]    = aij;
+        }
+    }
+
+    // 4) merge-compare each row i: A(i,*) vs A^T(i,*)
+    for (std::size_t i = 0; i < N_; ++i) {
+        std::size_t p  = rowPtr_[i];
+        std::size_t pe = rowPtr_[i + 1];
+        std::size_t q  = tRowPtr[i];
+        std::size_t qe = tRowPtr[i + 1];
+
+        while (p < pe && q < qe) {
+            const std::size_t cA  = colInd_[p];
+            const std::size_t cAt = tColInd[q];
+
+            if (cA == cAt) {
+                if (std::abs(val_[p] - tVal[q]) > tol) return false;
+                ++p; ++q;
+            } else if (cA < cAt) {
+                // A has an entry that transpose-row lacks => asymmetric unless it's ~0
+                if (std::abs(val_[p]) > tol) return false;
+                ++p;
+            } else { // cAt < cA
+                if (std::abs(tVal[q]) > tol) return false;
+                ++q;
+            }
+        }
+
+        while (p < pe) { if (std::abs(val_[p]) > tol) return false; ++p; }
+        while (q < qe) { if (std::abs(tVal[q]) > tol) return false; ++q; }
+    }
+
+    // diagonal is trivially symmetric
+    return true;
+}

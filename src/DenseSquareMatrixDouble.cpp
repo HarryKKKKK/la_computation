@@ -149,3 +149,44 @@ bool DenseSquareMatrixDouble::operator!=(const DenseSquareMatrixDouble& other) c
 {
     return !(*this == other);
 }
+
+bool DenseSquareMatrixDouble::isDiagonallyDominant() const
+{
+    // Weak diagonal dominance:
+    // |a_ii| >= sum_{j != i} |a_ij|  for all rows i.
+    const double tol = 1e-12;
+
+    for (std::size_t i = 0; i < N_; ++i)
+    {
+        double diag = std::abs((*this)(i, i));
+        double offSum = 0.0;
+
+        for (std::size_t j = 0; j < N_; ++j)
+        {
+            if (j == i) continue;
+            offSum += std::abs((*this)(i, j));
+        }
+
+        // allow tiny numerical slack
+        if (diag + tol < offSum)
+            return false;
+    }
+
+    return true;
+}
+
+bool DenseSquareMatrixDouble::isSymmetric() const
+{
+    const double tol = 1e-12;
+
+    for (std::size_t i = 0; i < N_; ++i)
+    {
+        for (std::size_t j = i + 1; j < N_; ++j)
+        {
+            if (std::abs((*this)(i, j) - (*this)(j, i)) > tol)
+                return false;
+        }
+    }
+
+    return true;
+}

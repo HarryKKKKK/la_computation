@@ -33,39 +33,12 @@ VectorDouble LinearSystemDense::residual() const
 
 bool LinearSystemDense::isSymmetric() const
 {
-    // std::cout << "check for symmetry" << std::endl;
-    double TOL = 1e-12;
-    const std::size_t N = A_.size();
-
-    for (std::size_t i = 0; i < N; ++i) {
-        for (std::size_t j = i + 1; j < N; ++j) {
-            // std::cout << i << " " << j << " " << std::abs(A_(i, j) - A_(j, i)) << std::endl;
-            if (std::abs(A_(i, j) - A_(j, i)) > TOL) {
-                // std::cout << std::abs(A_(i, j) - A_(j, i)) << std::endl;
-                return false;
-            }
-        }
-    }
-    return true;
+    return A_.isSymmetric();
 }
 
 bool LinearSystemDense::isDiagonallyDominant() const
 {
-    const std::size_t N = A_.size();
-
-    for (std::size_t i = 0; i < N; ++i) {
-        double diag = std::abs(A_(i, i));
-        double off_sum = 0.0;
-
-        for (std::size_t j = 0; j < N; ++j) {
-            if (j == i) continue;
-            off_sum += std::abs(A_(i, j));
-        }
-
-        if (diag < off_sum)
-            return false;
-    }
-    return true;
+    return A_.isDiagonallyDominant();
 }
 
 // ===============================

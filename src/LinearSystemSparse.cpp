@@ -82,67 +82,10 @@ LinearSystemSparse::operator*(double scalar) const
 
 bool LinearSystemSparse::isDiagonallyDominant() const
 {
-    const std::size_t N = A_.size();
-
-    const auto& rp = A_.rowPtr();
-    const auto& va = A_.values();
-    const auto& diagnal = A_.diagonal();
-
-    for (std::size_t i = 0; i < N; ++i)
-    {
-        double diag = std::abs(diagnal[i]);
-        double off_sum = 0.0;
-
-        for (std::size_t p = rp[i]; p < rp[i + 1]; ++p)
-            off_sum += std::abs(va[p]);
-
-        if (diag < off_sum)
-            return false;
-    }
-    return true;
+    return A_.isDiagonallyDominant();
 }
 
 bool LinearSystemSparse::isSymmetric() const
 {
-    if (!A_.isFinalized()) {
-        throw std::runtime_error("Error: Matrix must be finalized");
-    }
-    const double TOL = 1e-12;
-    const std::size_t N = A_.size();
-
-    const auto& rp = A_.rowPtr();
-    const auto& ci = A_.colInd();
-    const auto& va = A_.values();
-
-    // For each (i,j) in off-diagonal, find (j,i)
-    for (std::size_t i = 0; i < N; ++i)
-    {
-        for (std::size_t p = rp[i]; p < rp[i + 1]; ++p)
-        {
-            const std::size_t j = ci[p];
-            const double aij = va[p];
-
-            // look for aji in row j
-            bool found = false;
-            double aji = 0.0;
-
-            for (std::size_t q = rp[j]; q < rp[j + 1]; ++q)
-            {
-                if (ci[q] == i)
-                {
-                    found = true;
-                    aji = va[q];
-                    break;
-                }
-            }
-
-            if (!found)
-                return false;
-
-            if (std::abs(aij - aji) > TOL)
-                return false;
-        }
-    }
-
-    return true;
+    return A_.isSymmetric();
 }
