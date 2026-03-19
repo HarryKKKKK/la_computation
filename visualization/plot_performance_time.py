@@ -1,90 +1,58 @@
-import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-CSV_FILE = "bench_random.csv"
-OUT_DIR = "plots"
-MAKE_PDF = False
-LOGLOG = True
+df = pd.read_csv('bench_performance_0.csv')
 
-os.makedirs(OUT_DIR, exist_ok=True)
+plt.style.use('seaborn-v0_8-whitegrid')
 
-df = pd.read_csv(CSV_FILE)
-required = {"op", "storage", "N", "time_per_call"}
-missing = required - set(df.columns)
-if missing:
-    raise RuntimeError(f"Missing columns in CSV: {missing}")
+plt.figure(figsize=(10, 6))
+vec_data = df[df['operation'] == 'vec_add']
+data = vec_data[vec_data['storage'] == 'sparse']
+plt.loglog(data['n'], data['execution_time_sec'], marker='o', label=f'Vector Add')
+plt.title('Vector Addition Performance: $O(n)$ Complexity')
+plt.xlabel('Number of Unknowns ($n$)')
+plt.ylabel('Time (seconds)')
+plt.grid(True, which="both", ls="-", alpha=0.5)
+plt.savefig('vector_addition.png')
 
-df = df.sort_values(["op", "storage", "N"])
+plt.figure(figsize=(10, 6))
+mat_add_data = df[df['operation'] == 'mat_add']
+for storage in ['dense', 'sparse']:
+    data = mat_add_data[mat_add_data['storage'] == storage]
+    if not data.empty:
+        plt.loglog(data['n'], data['execution_time_sec'], marker='s', label=f'Matrix Add ({storage})')
+plt.title('Matrix Addition: Dense $O(n^2)$ vs Sparse $O(n)$')
+plt.xlabel('Number of Unknowns ($n$)')
+plt.ylabel('Time (seconds)')
+plt.legend()
+plt.grid(True, which="both", ls="-", alpha=0.5)
+plt.savefig('matrix_addition.png')
 
-def savefig(path):
-    plt.tight_layout()
-    if MAKE_PDF:
-        plt.savefig(path)
-    else:
-        plt.savefig(path.replace(".pdf", ".png"), dpi=200)
-    plt.close()
+plt.figure(figsize=(10, 6))
+matvec_data = df[df['operation'] == 'matvec']
+for storage in ['dense', 'sparse']:
+    data = matvec_data[matvec_data['storage'] == storage]
+    if not data.empty:
+        plt.loglog(data['n'], data['execution_time_sec'], marker='^', label=f'Mat-Vec Mult ({storage})')
+plt.title('Matrix-Vector Multiplication Performance')
+plt.xlabel('Number of Unknowns ($n$)')
+plt.ylabel('Time (seconds)')
+plt.legend()
+plt.grid(True, which="both", ls="-", alpha=0.5)
+plt.savefig('matvec_comparison.png')
 
-def plot_one_op(op_name):
-    sub = df[df["op"] == op_name]
-    if sub.empty:
-        return
+plt.figure(figsize=(10, 6))
+res_data = df[df['operation'] == 'res_nominal']
+for storage in ['dense', 'sparse']:
+    data = res_data[res_data['storage'] == storage]
+    if not data.empty:
+        plt.loglog(data['n'], data['execution_time_sec'], marker='D', label=f'Residual ({storage.capitalize()})')
 
-    plt.figure()
-    for storage in sorted(sub["storage"].unique()):
-        s = sub[sub["storage"] == storage]
-        plt.plot(s["N"], s["time_per_call"], marker="o", label=storage)
+plt.title('Residual Evaluation Performance: Dense vs Sparse Storage')
+plt.xlabel('Number of Unknowns ($n$)')
+plt.ylabel('Time (seconds)')
+plt.legend()
+plt.grid(True, which="both", ls="-", alpha=0.5)
+plt.savefig('residual_storage_comparison.png')
 
-    plt.xlabel("N")
-    plt.ylabel("Time per call (seconds)")
-    plt.title(op_name)
-
-    if LOGLOG:
-        plt.xscale("log")
-        plt.yscale("log")
-
-    plt.legend()
-    savefig(os.path.join(OUT_DIR, f"{op_name}.pdf"))
-
-def plot_summary(op_name, storages=("dense", "sparse")):
-    sub = df[(df["op"] == op_name) & (df["storage"].isin(storages))]
-    if sub.empty:
-        return
-
-    plt.figure()
-    for storage in storages:
-        s = sub[sub["storage"] == storage]
-        if not s.empty:
-            plt.plot(s["N"], s["time_per_call"], marker="o", label=storage)
-
-    plt.xlabel("N")
-    plt.ylabel("Time per call (seconds)")
-    plt.title(f"{op_name}: dense vs sparse")
-
-    if LOGLOG:
-        plt.xscale("log")
-        plt.yscale("log")
-
-    plt.legend()
-    savefig(os.path.join(OUT_DIR, f"summary_{op_name}.pdf"))
-
-def main():
-    ops = sorted(df["op"].unique())
-
-    # 1) per-op plots
-    for op in ops:
-        plot_one_op(op)
-
-    # 2) key summaries
-    plot_summary("matvec")
-    plot_summary("residual")
-
-    print(f"Done. Plots saved in: {OUT_DIR}/")
-    print("Key files:")
-    print("  summary_matvec.pdf")
-    print("  summary_residual.pdf")
-    print("  speedup_matvec.pdf")
-    print("  speedup_residual.pdf")
-
-if __name__ == "__main__":
-    main()
+plt.show()

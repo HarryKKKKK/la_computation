@@ -25,6 +25,7 @@ public:
     bool isSymmetric() const;
     void multiply();
     VectorDouble residual() const;
+    VectorDouble residual_opt() const;
 
 private:
     SparseSquareMatrixCRSDouble A_;

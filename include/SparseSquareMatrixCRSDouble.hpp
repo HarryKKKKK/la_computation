@@ -32,6 +32,8 @@ public:
     bool isDiagonallyDominant() const;
     bool isSymmetric() const;
 
+    std::vector<std::size_t> computeRCM() const;
+    void applyPermutation(const std::vector<std::size_t>& p);
 private:
     struct Triplet {
         std::size_t i;

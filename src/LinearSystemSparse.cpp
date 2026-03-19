@@ -1,6 +1,7 @@
 #include "LinearSystemSparse.hpp"
 #include <stdexcept>
 #include <utility>
+#include <omp.h>
 
 #include <cmath>
 
@@ -30,6 +31,35 @@ void LinearSystemSparse::multiply()
 VectorDouble LinearSystemSparse::residual() const
 {
     return b_ - (A_ * x_);
+}
+
+VectorDouble LinearSystemSparse::residual_opt() const {
+    const std::size_t N = A_.size();
+    VectorDouble r(N); 
+
+    const auto& rowPtr = A_.rowPtr();
+    const auto& colInd = A_.colInd();
+    const auto& val = A_.values();
+    const auto& diag = A_.diagonal();
+
+    const double* const x_ptr = &x_[0];
+    const double* const b_ptr = &b_[0];
+    double* const r_ptr = &r[0];
+
+    for (std::size_t i = 0; i < N; ++i) {
+        double Ax_i = diag[i] * x_ptr[i];
+
+        const std::size_t p_start = rowPtr[i];
+        const std::size_t p_end = rowPtr[i + 1];
+
+        for (std::size_t p = p_start; p < p_end; ++p) {
+            Ax_i += val[p] * x_ptr[colInd[p]];
+        }
+        
+        r_ptr[i] = b_ptr[i] - Ax_i;
+    }
+
+    return r;
 }
 
 // ===============================

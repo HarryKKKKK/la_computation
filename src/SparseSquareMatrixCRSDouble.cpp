@@ -1,6 +1,7 @@
 #include "SparseSquareMatrixCRSDouble.hpp"
 #include <algorithm>
 #include <stdexcept>
+#include <queue>
 #include <cmath>
 
 SparseSquareMatrixCRSDouble::SparseSquareMatrixCRSDouble(std::size_t N)
@@ -335,4 +336,68 @@ bool SparseSquareMatrixCRSDouble::isSymmetric() const
 
     // diagonal is trivially symmetric
     return true;
+}
+
+std::vector<std::size_t> SparseSquareMatrixCRSDouble::computeRCM() const {
+    std::vector<std::size_t> degree(N_);
+    for (std::size_t i = 0; i < N_; ++i) {
+        degree[i] = rowPtr_[i + 1] - rowPtr_[i];
+    }
+
+    std::vector<std::size_t> permutation;
+    std::vector<bool> visited(N_, false);
+    
+    for (std::size_t start_node = 0; start_node < N_; ++start_node) {
+        if (visited[start_node]) continue;
+
+        std::queue<std::size_t> q;
+        q.push(start_node);
+        visited[start_node] = true;
+
+        while (!q.empty()) {
+            std::size_t u = q.front();
+            q.pop();
+            permutation.push_back(u);
+
+            std::vector<std::size_t> neighbors;
+            for (std::size_t p = rowPtr_[u]; p < rowPtr_[u + 1]; ++p) {
+                if (!visited[colInd_[p]]) neighbors.push_back(colInd_[p]);
+            }
+
+            std::sort(neighbors.begin(), neighbors.end(), [&](std::size_t a, std::size_t b) {
+                return degree[a] < degree[b];
+            });
+
+            for (std::size_t v : neighbors) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+    }
+
+    std::reverse(permutation.begin(), permutation.end());
+
+    std::vector<std::size_t> new_order(N_);
+    for (std::size_t i = 0; i < N_; ++i) {
+        new_order[permutation[i]] = i;
+    }
+    return new_order;
+}
+
+void SparseSquareMatrixCRSDouble::applyPermutation(const std::vector<std::size_t>& p) {
+    std::vector<Triplet> new_entries;
+    new_entries.reserve(nnz() + N_);
+
+    for (std::size_t i = 0; i < N_; ++i) {
+        new_entries.push_back({p[i], p[i], diag_[i]});
+        for (std::size_t k = rowPtr_[i]; k < rowPtr_[i + 1]; ++k) {
+            new_entries.push_back({p[i], p[colInd_[k]], val_[k]});
+        }
+    }
+
+    entries_ = std::move(new_entries);
+    finalized_ = false;
+    finalize();
 }

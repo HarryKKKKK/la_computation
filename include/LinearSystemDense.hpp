@@ -22,6 +22,7 @@ public:
     void multiply();
     // r = b - A * x
     VectorDouble residual() const;
+    VectorDouble residual_opt() const;
 
     bool isSymmetric() const;
     bool isDiagonallyDominant() const;

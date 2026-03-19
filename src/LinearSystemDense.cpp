@@ -1,5 +1,6 @@
 #include "LinearSystemDense.hpp"
 #include <stdexcept>
+#include <omp.h>
 
 #include <cmath>
 #include <iostream>
@@ -29,6 +30,33 @@ void LinearSystemDense::multiply()
 VectorDouble LinearSystemDense::residual() const
 {
     return b_ - (A_ * x_);
+}
+
+VectorDouble LinearSystemDense::residual_opt() const
+{
+    const std::size_t N = A_.size();
+    VectorDouble r(N);
+
+    const double* const A_ptr = &A_(0, 0); 
+    const double* const x_ptr = &x_[0];
+    const double* const b_ptr = &b_[0];
+    double* const r_ptr = &r[0];
+
+    #pragma omp parallel for schedule(static)
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        double Ax_i = 0.0;
+        
+        const double* const row_ptr = &A_ptr[i * N];
+        for (std::size_t j = 0; j < N; ++j)
+        {
+            Ax_i += row_ptr[j] * x_ptr[j];
+        }
+
+        r_ptr[i] = b_ptr[i] - Ax_i;
+    }
+
+    return r;
 }
 
 bool LinearSystemDense::isSymmetric() const
