@@ -39,6 +39,27 @@
 # clean:
 # 	rm -f denseTest sparseTest ioTest performance
 
+# CXX = g++
+# CXXFLAGS = -O3 -fopenmp -std=c++17
+# INCLUDES = -Iinclude
+# SRC_DIR = src
+# SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+# OBJECTS = $(SOURCES:.cpp=.o)
+
+# TARGET = bench_sparsity
+# MAIN_SRC = dimension_efficiency.cpp
+
+# all: $(TARGET)
+
+# $(TARGET): $(MAIN_SRC) $(OBJECTS)
+# 	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@
+
+# $(SRC_DIR)/%.o: $(SRC_DIR)/%.cpp
+# 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
+
+# clean:
+# 	rm -f $(SRC_DIR)/*.o $(TARGET)
+
 CXX = g++
 CXXFLAGS = -O3 -fopenmp -std=c++17
 INCLUDES = -Iinclude
@@ -46,8 +67,8 @@ SRC_DIR = src
 SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS = $(SOURCES:.cpp=.o)
 
-TARGET = bench_sparsity
-MAIN_SRC = dimension_efficiency.cpp
+TARGET = complex_mat
+MAIN_SRC = generate_complex_matrix.cpp
 
 all: $(TARGET)
 
